@@ -1,15 +1,14 @@
-import { Button } from "./components/ui/button";
-import { HiArrowNarrowRight } from "react-icons/hi";
+// src/index.js or src/App.js
+import React from "react";
+import ReactDOM from "react-dom";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import Reports from "./components/Pages/Reports"; // Adjust the path as necessary
 
-function App() {
-  return (
-    <>
-      <div className=" flex justify-center items-center mt-5">
-        <Button className="text-red-500">hello</Button>
-        <HiArrowNarrowRight />
-      </div>
-    </>
-  );
-}
+const App = () => (
+  <DndProvider backend={HTML5Backend}>
+    <Reports />
+  </DndProvider>
+);
 
-export default App;
+ReactDOM.render(<App />, document.getElementById("root"));

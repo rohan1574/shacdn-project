@@ -8,11 +8,11 @@ import {
 } from "../ui/accordion";
 import { AiFillCaretDown } from "react-icons/ai";
 import { FiPlus } from "react-icons/fi";
-import { Input } from "../ui/input";
+
 
 const Sidebar = () => {
   return (
-    <div className="w-64 bg-white text-black border-x border-black flex flex-col  h-full">
+    <div className="w-64 bg-white text-black border-x border-black  flex flex-col  h-full">
       <nav className="flex-grow p-4 ml-12" aria-label="Main Navigation">
         <ul>
           <li className="">

@@ -5,15 +5,17 @@ import Sidebar from "../components/Pages/SideBar";
 
 const Layout = () => {
   return (
-    <div className="flex flex-col h-screen">
-      <Navbar />
-      <div className="flex flex-grow">
-        <Sidebar />
-        <main className="flex-grow ">
-          <Outlet />
-        </main>
+  
+      <div className="flex flex-col h-screen">
+        <Navbar />
+        <div className="flex flex-grow">
+          <Sidebar />
+          <main className="flex-grow ">
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
+   
   );
 };
 

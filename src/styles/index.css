@@ -1,0 +1,26 @@
+/* src/index.css */
+.reports {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  
+  .column {
+    width: 300px;
+    min-height: 500px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+  }
+  
+  .card {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    cursor: move;
+  }
+  
