@@ -1,7 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { AiFillCaretDown } from "react-icons/ai";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
 
-const Navbar = () => {
+const Navbar = ({ addCard }) => {
+  const [taskName, setTaskName] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const handleAddCard = () => {
+    if (taskName.trim()) { // Check if taskName has non-empty text
+      addCard(taskName.trim(), "Open");
+      setTaskName("");
+      setOpen(false); // Close the dialog after adding the task
+    } else {
+      // Handle error: Task name cannot be empty
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setTaskName(e.target.value);
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false); // Close the dialog when the "Close" button is clicked
+  };
+
   return (
     <div className="text-black p-3 flex flex-wrap justify-between items-center border-y border-black">
       <div className="text-lg font-semibold flex-grow">
@@ -20,9 +44,37 @@ const Navbar = () => {
           </button>
         </div>
         <div>
-          <button className="flex items-center px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
-            <h1 className="text-[12px] md:text-[14px] font-semibold">New</h1>
-          </button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <button
+                className="flex items-center px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+              >
+                <h1 className="text-[12px] md:text-[14px] font-semibold">New</h1>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add Task</DialogTitle>
+                <DialogDescription>Fill in the details to add a new task.</DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Name"
+                  value={taskName}
+                  onChange={handleInputChange}
+                  className="flex-1"
+                  autoFocus
+                />
+                <Button type="submit" onClick={handleAddCard}>Add</Button>
+              </div>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary" onClick={handleCloseDialog}>Close</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>

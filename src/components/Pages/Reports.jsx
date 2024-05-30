@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import {  FaArrowAltCircleDown, FaCircle } from "react-icons/fa";
+import { FaArrowAltCircleDown, FaCircle } from "react-icons/fa";
 import { AiFillCaretDown } from "react-icons/ai";
-import { FcAcceptDatabase, FcApproval, FcAssistant, FcBinoculars, FcGallery } from "react-icons/fc";
+import {
+  FcAcceptDatabase,
+  FcApproval,
+  FcAssistant,
+  FcBinoculars,
+  FcGallery,
+} from "react-icons/fc";
 import { IoSearchSharp } from "react-icons/io5";
 import { FaRegMessage } from "react-icons/fa6";
 import { FiPlus } from "react-icons/fi";
@@ -19,6 +25,8 @@ import {
   DialogTrigger,
 } from "../../components/ui/dialog"; // Adjust the import path if necessary
 import { Input } from "../../components/ui/input"; // Adjust the import path if necessary
+import { useOutletContext } from "react-router-dom";
+
 
 const iconComponents = {
   FcGallery,
@@ -54,7 +62,10 @@ const CardItem = ({ card, index, moveCard }) => {
   const IconComponent = iconComponents[card.iconName]; // Get the icon component dynamically
 
   return (
-    <div ref={(node) => ref(drop(node))} className={`mb-3 mr-4 ${getCardColor(card.status)}`}>
+    <div
+      ref={(node) => ref(drop(node))}
+      className={`mb-3 mr-4 ${getCardColor(card.status)}`}
+    >
       <div className="card">
         <div className={`h-1 w-5 mt-2 ml-2 ${getColorClass(card.status)}`}></div>
         <div className="ml-2 font-semibold text-[14px]">{card.title}</div>
@@ -109,16 +120,19 @@ const Column = ({ title, status, cards, moveCard, addCard }) => {
   });
 
   const renderAddTaskDialog = () => {
-    if (status === "Open" || status === "Working" || status === "Completed" || status === "Overdue") {
-      // Render AddTaskDialog only for "Open" and "Working" status
+    if (["Open", "Working", "Completed", "Overdue"].includes(status)) {
       return <AddTaskDialog addCard={addCard} status={status} />;
     } else {
-      return null; // Don't render AddTaskDialog for other statuses
+      return null;
     }
   };
 
   return (
-    <div ref={drop} className="mr-3 border-r-2">
+    <div
+      ref={drop}
+      className={`mr-3 border-r-2 ${status === "Open" || status === "Working" || status === "Completed" || status === "Overdue" ? "max-h-screen overflow-y-auto" : ""}`}
+    >
+      
       <div className="flex justify-between items-center">
         <div className="flex items-center ml-4 p-2 gap-1">
           <FaCircle className={`text-${getColorClass(status).split("-")[1]}-500 w-3 h-2`} />
@@ -134,28 +148,41 @@ const Column = ({ title, status, cards, moveCard, addCard }) => {
         <CardItem key={card.id} card={card} index={index} moveCard={moveCard} />
       ))}
       <div className="flex items-center ml-6 text-[14px] font-medium text-gray-400 gap-2 mt-4 mb-2">
-        {renderAddTaskDialog()} {/* Render AddTaskDialog conditionally */}
+        {renderAddTaskDialog()}
       </div>
     </div>
   );
 };
 
+
 const AddTaskDialog = ({ addCard, status }) => {
   const [taskName, setTaskName] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const [{ isDragging }, drag] = useDrag({
+    type: itemType,
+    item: { type: itemType, text: taskName }, // Include the text in the drag item
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  });
 
   const handleAdd = () => {
     if (taskName.trim()) {
       addCard(taskName, status);
       setTaskName("");
+      setOpen(false);
     }
   };
 
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          Add Task
-        </Button>
+        <Button variant="outline">Add Task</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -168,13 +195,14 @@ const AddTaskDialog = ({ addCard, status }) => {
             placeholder="Name"
             value={taskName}
             onChange={(e) => setTaskName(e.target.value)}
-            className="flex-1"
+            ref={drag} // Apply drag functionality to the input field
+            className={`flex-1 ${isDragging ? 'opacity-50' : ''}`} // Reduce opacity of input field when dragging
           />
-          <Button onClick={handleAdd}>Add</Button>
+          <Button type="submit" onClick={handleAdd}>Add</Button>
         </div>
         <DialogFooter className="sm:justify-start">
           <DialogClose asChild>
-            <Button type="button" variant="secondary">
+            <Button onClick={handleCloseDialog} type="button" variant="secondary">
               Close
             </Button>
           </DialogClose>
@@ -184,33 +212,10 @@ const AddTaskDialog = ({ addCard, status }) => {
   );
 };
 
+
+
 const Reports = () => {
-  const [cards, setCards] = useState([
-    // {
-    //   id: 1,
-    //   status: "Open",
-    //   title: "Website V1.0 Deployment",
-    //   iconName: "FcGallery",
-    // },
-    // {
-    //   id: 2,
-    //   status: "Working",
-    //   title: "Website V1.0 Marketing",
-    //   iconName: "FcAcceptDatabase",
-    // },
-    // {
-    //   id: 3,
-    //   status: "Completed",
-    //   title: "Post Release Campaign",
-    //   iconName: "FcApproval",
-    // },
-    // {
-    //   id: 4,
-    //   status: "Overdue",
-    //   title: "Website V1.0 Deployment",
-    //   iconName: "FcBinoculars",
-    // },
-  ]);
+  const { cards, setCards } = useOutletContext();
 
   const moveCard = (fromIndex, toStatus) => {
     const updatedCards = cards.map((card, index) => {
@@ -234,10 +239,6 @@ const Reports = () => {
     }
   };
 
- 
-
-
-
   const columns = [
     { title: "Open", status: "Open" },
     { title: "Working", status: "Working" },
@@ -247,15 +248,14 @@ const Reports = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="mr-12 border-r-2 h-full">
+
+      <div className="mr-12 border-r-2 h-full overflow-x-hidden">
         <div className="flex justify-between border-t-2 p-1.5">
           <div className="flex items-center justify-center text-[12px] ml-3 font-medium text-gray-400 bg-gray-100 h-6 w-16 rounded">
             Add Filter
           </div>
           <div className="flex items-center -mr-3 gap-3">
-            <h1 className="text-[12px] font-bold text-gray-300">
-              Last Modified On
-            </h1>
+            <h1 className="text-[12px] font-bold text-gray-300">Last Modified On</h1>
             <div className="bg-gray-200 flex items-center p-1 mr-6 rounded">
               <FaArrowAltCircleDown className="text-black" />
             </div>
@@ -264,14 +264,13 @@ const Reports = () => {
         <div className="grid grid-cols-4 bg-gray-100 border-y border-black">
           {columns.map((column) => (
             <Column
-            key={column.status}
-            title={column.title}
-            status={column.status}
-            cards={cards.filter((card) => card.status === column.status)}
-            moveCard={moveCard}
-            addCard={addCard}
-          />
-          
+              key={column.status}
+              title={column.title}
+              status={column.status}
+              cards={cards.filter((card) => card.status === column.status)}
+              moveCard={moveCard}
+              addCard={addCard}
+            />
           ))}
         </div>
       </div>

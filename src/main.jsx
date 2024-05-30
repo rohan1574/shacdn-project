@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Updated import statements
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.css';
@@ -9,38 +9,23 @@ import Error from './Root/Error';
 import DashBoard from './components/Pages/DashBoard';
 import Calendar from './components/Pages/Calendar';
 import About from './components/Pages/About';
-import Reports from './components/Pages/Reports'; // Assuming `Home` is renamed to `Reports`
+import Reports from './components/Pages/Reports';
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Layout />,
-    errorElement: <Error />,
-    children: [
-      {
-        path: '/',
-        element: <Reports />,
-      },
-      {
-        path: 'dashboard',
-        element: <DashBoard />,
-      },
-      {
-        path: 'calendar',
-        element: <Calendar />,
-      },
-      {
-        path: 'about',
-        element: <About />,
-      },
-    ],
-  },
-]);
-
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.render(
   <React.StrictMode>
-    <DndProvider backend={HTML5Backend}>
-      <RouterProvider router={router} />
-    </DndProvider>
-  </React.StrictMode>
+    <Router> {/* Wrap the entire application in the Router */}
+      <DndProvider backend={HTML5Backend}>
+        <Routes> {/* Define your routes */}
+          <Route path="/" element={<Layout />}> {/* Main layout for nested routes */}
+            <Route index element={<Reports />} /> {/* Home Page */}
+            <Route path="dashboard" element={<DashBoard />} />
+            <Route path="calendar" element={<Calendar />} />
+            <Route path="about" element={<About />} />
+          </Route>
+          <Route path="*" element={<Error />} /> {/* Error page for undefined routes */}
+        </Routes>
+      </DndProvider>
+    </Router>
+  </React.StrictMode>,
+  document.getElementById('root')
 );
