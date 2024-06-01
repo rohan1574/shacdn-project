@@ -14,7 +14,7 @@ const Navbar = ({ addCard }) => {
       setTaskName("");
       setOpen(false); // Close the dialog after adding the task
     } else {
-      // Handle error: Task name cannot be empty
+      // Handle error: Task name cannot be empty rony is greate is boy my name is jihana rion milon queen rifat
     }
   };
 

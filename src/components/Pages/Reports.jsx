@@ -64,7 +64,7 @@ const CardItem = ({ card, index, moveCard }) => {
   return (
     <div
       ref={(node) => ref(drop(node))}
-      className={`mb-3 mr-4 ${getCardColor(card.status)}`}
+      className={`mb-3 ml-2 mr-2 ${getCardColor(card.status)}`}
     >
       <div className="card">
         <div className={`h-1 w-5 mt-2 ml-2 ${getColorClass(card.status)}`}></div>
@@ -130,7 +130,7 @@ const Column = ({ title, status, cards, moveCard, addCard }) => {
   return (
     <div
       ref={drop}
-      className={`mr-3 border-r-2 ${status === "Open" || status === "Working" || status === "Completed" || status === "Overdue" ? "max-h-screen overflow-y-auto" : ""}`}
+      className={` border-r-2 ${status === "Open" || status === "Working" || status === "Completed" || status === "Overdue" ? "max-h-screen overflow-y-auto" : ""}`}
     >
       
       <div className="flex justify-between items-center">
@@ -248,9 +248,18 @@ const Reports = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-
-      <div className="mr-12 border-r-2 h-full overflow-x-hidden">
+      <div className="mr-12  border-r-2 h-full overflow-x-hidden">
+      <div className="bg-gray-100 p-2">
+      <div className=" grid grid-cols-5 gap-2 w-[1000px]  ml-2">
+        <Input  type="email" placeholder="ID" />
+        <Input type="email" placeholder="Subject" />
+        <Input type="email" placeholder="Alpha Service Q/2" />
+        <Input type="email" placeholder="" />
+        <Input type="email" placeholder="" />
+        </div>
+      </div>
         <div className="flex justify-between border-t-2 p-1.5">
+          
           <div className="flex items-center justify-center text-[12px] ml-3 font-medium text-gray-400 bg-gray-100 h-6 w-16 rounded">
             Add Filter
           </div>
