@@ -129,30 +129,39 @@ const Column = ({ title, status, cards, moveCard, addCard }) => {
 
   return (
     <div
-      ref={drop}
-      className={` border-r-2 ${status === "Open" || status === "Working" || status === "Completed" || status === "Overdue" ? "max-h-screen overflow-y-auto" : ""}`}
+      className={` border-r-2 ${
+        status === "Open" || status === "Working" || status === "Completed" || status === "Overdue"
+          ? "max-h-screen overflow-y-auto"
+          : ""
+      }`}
     >
-      
-      <div className="flex justify-between items-center">
-        <div className="flex items-center ml-4 p-2 gap-1">
-          <FaCircle className={`text-${getColorClass(status).split("-")[1]}-500 w-3 h-2`} />
-          <h1 className="text-[14px] font-bold text-gray-500">{title}</h1>
-        </div>
-        <div className="bg-gray-200 flex items-center p-1 mr-6 rounded">
-          <div className="text-[12px]">
-            <AiFillCaretDown />
+      <div ref={drop}>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center ml-4 p-2 gap-1">
+            <FaCircle
+              className={`text-${getColorClass(status).split("-")[1]}-500 w-3 h-2`}
+            />
+            <h1 className="text-[14px] font-bold text-gray-500">{title}</h1>
+          </div>
+          <div className="bg-gray-200 flex items-center p-1 mr-6 rounded">
+            <div className="text-[12px]">
+              <AiFillCaretDown />
+            </div>
           </div>
         </div>
-      </div>
-      {cards.map((card, index) => (
-        <CardItem key={card.id} card={card} index={index} moveCard={moveCard} />
-      ))}
-      <div className="flex items-center ml-6 text-[14px] font-medium text-gray-400 gap-2 mt-4 mb-2">
-        {renderAddTaskDialog()}
+        <div className="overflow-y-auto max-h-[calc(100vh-300px)]"> {/* Adjust max-height as needed */}
+          {cards.map((card, index) => (
+            <CardItem key={card.id} card={card} index={index} moveCard={moveCard} />
+          ))}
+        </div>
+        <div className="flex items-center ml-6 text-[14px] font-medium text-gray-400 gap-2 mt-4 mb-2">
+          {renderAddTaskDialog()}
+        </div>
       </div>
     </div>
   );
 };
+
 
 
 const AddTaskDialog = ({ addCard, status }) => {
