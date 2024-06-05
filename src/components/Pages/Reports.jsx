@@ -3,17 +3,7 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { FaArrowAltCircleDown, FaCircle } from "react-icons/fa";
 import { AiFillCaretDown } from "react-icons/ai";
-import {
-  FcAcceptDatabase,
-  FcApproval,
-  FcAssistant,
-  FcBinoculars,
-  FcGallery,
-} from "react-icons/fc";
-import { IoSearchSharp } from "react-icons/io5";
-import { FaRegMessage } from "react-icons/fa6";
-import { FiPlus } from "react-icons/fi";
-import { Button } from "../../components/ui/button"; // Adjust the import path if necessary
+import { Button } from "../../components/ui/button"; 
 import {
   Dialog,
   DialogClose,
@@ -23,28 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../../components/ui/dialog"; // Adjust the import path if necessary
-import { Input } from "../../components/ui/input"; // Adjust the import path if necessary
+} from "../../components/ui/dialog"; 
+import { Input } from "../../components/ui/input"; 
 import { useOutletContext } from "react-router-dom";
-
-// Mapping of icon names to actual icon components
-const iconComponents = {
-  FcGallery,
-  FcApproval,
-  FcAcceptDatabase,
-  FcAssistant,
-  FcBinoculars,
-  IoSearchSharp,
-  FiPlus,
-  FaArrowAltCircleDown,
-  FaCircle,
-  AiFillCaretDown,
-};
+import CardEditModal from './CardEditModal';
 
 const itemType = "CARD";
 
-// Component for individual card items
-const CardItem = ({ card, index, moveCard, updateCardStatus }) => {
+const CardItem = ({ card, index, moveCard, updateCardStatus, updateCard }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [, ref] = useDrag({
     type: itemType,
     item: { index, id: card.id, status: card.status },
@@ -65,29 +42,35 @@ const CardItem = ({ card, index, moveCard, updateCardStatus }) => {
     },
   });
 
-  const IconComponent = iconComponents[card.iconName]; // Get the icon component dynamically
+
+  const handleCardClick = () => {
+    setIsModalOpen(true);
+  };
 
   return (
     <div
       ref={(node) => ref(drop(node))}
       className={`mb-3 ml-2 mr-2 ${getCardColor(card.status)}`}
+      onClick={handleCardClick}
     >
       <div className="card">
         <div className={`h-1 w-5 mt-2 ml-2 ${getColorClass(card.status)}`}></div>
-        <div className="ml-2 font-semibold text-[14px]">{card.title}</div>
+        <div className="ml-2 font-semibold text-[14px]">{card.title}</div>       
         <div className="mt-5 mb-2 mr-3 flex justify-end">
-          <div className="mr-5 flex items-center gap-1 text-[14px] text-gray-400">
-            <FaRegMessage />
-            <p>2</p>
-          </div>
-          <div className="mt-2">{IconComponent && <IconComponent />}</div>
+        <div className="ml-2 text-[12px] text-gray-500">{card.timestamp}</div>
         </div>
       </div>
+      {isModalOpen && (
+        <CardEditModal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          card={card}
+          updateCard={updateCard}
+        />
+      )}
     </div>
   );
 };
-
-// Functions to get class names for status-based styling
 const getColorClass = (status) => {
   switch (status) {
     case "Open":
@@ -118,8 +101,7 @@ const getCardColor = (status) => {
   }
 };
 
-// Component for each column in the kanban board
-const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus }) => {
+const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus, updateCard }) => {
   const [, drop] = useDrop({
     accept: itemType,
     drop: (item) => {
@@ -151,7 +133,7 @@ const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus }) =
         </div>
         <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
           {cards.map((card, index) => (
-            <CardItem key={card.id} card={card} index={index} moveCard={moveCard} updateCardStatus={updateCardStatus} />
+            <CardItem key={card.id} card={card} index={index} moveCard={moveCard} updateCardStatus={updateCardStatus} updateCard={updateCard} />
           ))}
         </div>
         <div className="flex items-center ml-6 text-[14px] font-medium text-gray-400 gap-2 mt-4 mb-2">
@@ -162,7 +144,8 @@ const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus }) =
   );
 };
 
-// Dialog component for adding new tasks
+
+
 const AddTaskDialog = ({ addCard, status }) => {
   const [taskName, setTaskName] = useState("");
   const [open, setOpen] = useState(false);
@@ -210,7 +193,6 @@ const AddTaskDialog = ({ addCard, status }) => {
   );
 };
 
-// Main Reports component
 const Reports = () => {
   const { cards, setCards } = useOutletContext();
 
@@ -231,13 +213,24 @@ const Reports = () => {
     setCards(updatedCards);
   };
 
+  const updateCard = (cardId, newTitle, newTimestamp) => {
+    const updatedCards = cards.map((card) => {
+      if (card.id === cardId) {
+        return { ...card, title: newTitle, timestamp: newTimestamp };
+      }
+      return card;
+    });
+    setCards(updatedCards);
+  };
+
   const addCard = (title, status) => {
     if (title.trim()) {
       const newCard = {
         id: cards.length + 1,
         status: status,
         title: title,
-        iconName: "FcGallery", // Default icon for now
+        iconName: "FcGallery",
+        timestamp: new Date().toLocaleString(),
       };
       setCards([...cards, newCard]);
     }
@@ -283,6 +276,7 @@ const Reports = () => {
               moveCard={moveCard}
               addCard={addCard}
               updateCardStatus={updateCardStatus}
+              updateCard={updateCard}
             />
           ))}
         </div>
@@ -292,3 +286,4 @@ const Reports = () => {
 };
 
 export default Reports;
+

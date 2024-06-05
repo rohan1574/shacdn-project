@@ -4,10 +4,12 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 
-const Navbar = ({ addCard }) => {
+const Navbar = ({ addCard, refreshCards }) => {
   const [taskName, setTaskName] = useState("");
   const [open, setOpen] = useState(false);
-
+  const handleRefresh = () => {
+    refreshCards(); // Call the refreshCards function
+  };
   const handleAddCard = () => {
     if (taskName.trim()) { // Check if taskName has non-empty text
       addCard(taskName.trim(), "Open");
@@ -39,10 +41,13 @@ const Navbar = ({ addCard }) => {
           </button>
         </div>
         <div>
-          <button className="flex items-center ml-1.5 px-4 py-2 bg-gray-200 text-black font-semibold rounded-lg shadow-md hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
-            <h1 className="text-[12px] md:text-[14px] font-semibold">Refresh</h1>
-          </button>
-        </div>
+        <button
+          className="flex items-center ml-1.5 px-4 py-2 bg-gray-200 text-black font-semibold rounded-lg shadow-md hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+          onClick={handleRefresh} // Add onClick event handler
+        >
+          <h1 className="text-[12px] md:text-[14px] font-semibold">Refresh</h1>
+        </button>
+      </div>
         <div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
