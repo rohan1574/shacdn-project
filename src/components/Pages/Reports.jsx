@@ -27,7 +27,7 @@ import {
 import { Input } from "../../components/ui/input"; // Adjust the import path if necessary
 import { useOutletContext } from "react-router-dom";
 
-
+// Mapping of icon names to actual icon components
 const iconComponents = {
   FcGallery,
   FcApproval,
@@ -43,18 +43,24 @@ const iconComponents = {
 
 const itemType = "CARD";
 
-const CardItem = ({ card, index, moveCard }) => {
+// Component for individual card items
+const CardItem = ({ card, index, moveCard, updateCardStatus }) => {
   const [, ref] = useDrag({
     type: itemType,
-    item: { index },
+    item: { index, id: card.id, status: card.status },
   });
 
   const [, drop] = useDrop({
     accept: itemType,
     hover(item) {
-      if (item.index !== index) {
+      if (item.id !== card.id) {
         moveCard(item.index, index);
         item.index = index;
+      }
+    },
+    drop(item) {
+      if (item.id !== card.id && item.status !== card.status) {
+        updateCardStatus(item.id, card.status);
       }
     },
   });
@@ -81,6 +87,7 @@ const CardItem = ({ card, index, moveCard }) => {
   );
 };
 
+// Functions to get class names for status-based styling
 const getColorClass = (status) => {
   switch (status) {
     case "Open":
@@ -111,11 +118,14 @@ const getCardColor = (status) => {
   }
 };
 
-const Column = ({ title, status, cards, moveCard, addCard }) => {
+// Component for each column in the kanban board
+const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus }) => {
   const [, drop] = useDrop({
     accept: itemType,
     drop: (item) => {
-      moveCard(item.index, status);
+      if (item.status !== status) {
+        updateCardStatus(item.id, status);
+      }
     },
   });
 
@@ -128,30 +138,20 @@ const Column = ({ title, status, cards, moveCard, addCard }) => {
   };
 
   return (
-    <div
-      className={` border-r-2 ${
-        status === "Open" || status === "Working" || status === "Completed" || status === "Overdue"
-          ? "max-h-screen overflow-y-auto"
-          : ""
-      }`}
-    >
+    <div className={`border-r-2 ${["Open", "Working", "Completed", "Overdue"].includes(status) ? "max-h-screen overflow-y-auto" : ""}`}>
       <div ref={drop}>
         <div className="flex justify-between items-center">
           <div className="flex items-center ml-4 p-2 gap-1">
-            <FaCircle
-              className={`text-${getColorClass(status).split("-")[1]}-500 w-3 h-2`}
-            />
+            <FaCircle className={`text-${getColorClass(status).split("-")[1]}-500 w-3 h-2`} />
             <h1 className="text-[14px] font-bold text-gray-500">{title}</h1>
           </div>
           <div className="bg-gray-200 flex items-center p-1 mr-6 rounded">
-            <div className="text-[12px]">
-              <AiFillCaretDown />
-            </div>
+            <AiFillCaretDown className="text-[12px]" />
           </div>
         </div>
-        <div className="overflow-y-auto max-h-[calc(100vh-300px)]"> {/* Adjust max-height as needed */}
+        <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
           {cards.map((card, index) => (
-            <CardItem key={card.id} card={card} index={index} moveCard={moveCard} />
+            <CardItem key={card.id} card={card} index={index} moveCard={moveCard} updateCardStatus={updateCardStatus} />
           ))}
         </div>
         <div className="flex items-center ml-6 text-[14px] font-medium text-gray-400 gap-2 mt-4 mb-2">
@@ -162,19 +162,10 @@ const Column = ({ title, status, cards, moveCard, addCard }) => {
   );
 };
 
-
-
+// Dialog component for adding new tasks
 const AddTaskDialog = ({ addCard, status }) => {
   const [taskName, setTaskName] = useState("");
   const [open, setOpen] = useState(false);
-
-  const [{ isDragging }, drag] = useDrag({
-    type: itemType,
-    item: { type: itemType, text: taskName }, // Include the text in the drag item
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  });
 
   const handleAdd = () => {
     if (taskName.trim()) {
@@ -204,8 +195,6 @@ const AddTaskDialog = ({ addCard, status }) => {
             placeholder="Name"
             value={taskName}
             onChange={(e) => setTaskName(e.target.value)}
-            ref={drag} // Apply drag functionality to the input field
-            className={`flex-1 ${isDragging ? 'opacity-50' : ''}`} // Reduce opacity of input field when dragging
           />
           <Button type="submit" onClick={handleAdd}>Add</Button>
         </div>
@@ -221,15 +210,21 @@ const AddTaskDialog = ({ addCard, status }) => {
   );
 };
 
-
-
+// Main Reports component
 const Reports = () => {
   const { cards, setCards } = useOutletContext();
 
-  const moveCard = (fromIndex, toStatus) => {
-    const updatedCards = cards.map((card, index) => {
-      if (index === fromIndex) {
-        return { ...card, status: toStatus };
+  const moveCard = (fromIndex, toIndex) => {
+    const updatedCards = [...cards];
+    const [movedCard] = updatedCards.splice(fromIndex, 1);
+    updatedCards.splice(toIndex, 0, movedCard);
+    setCards(updatedCards);
+  };
+
+  const updateCardStatus = (cardId, newStatus) => {
+    const updatedCards = cards.map((card) => {
+      if (card.id === cardId) {
+        return { ...card, status: newStatus };
       }
       return card;
     });
@@ -257,18 +252,17 @@ const Reports = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="mr-12  border-r-2 h-full overflow-x-hidden">
-      <div className="bg-gray-100 p-2">
-      <div className=" grid grid-cols-5 gap-2 w-[1000px]  ml-2">
-        <Input  type="email" placeholder="ID" />
-        <Input type="email" placeholder="Subject" />
-        <Input type="email" placeholder="Alpha Service Q/2" />
-        <Input type="email" placeholder="" />
-        <Input type="email" placeholder="" />
+      <div className="mr-12 border-r-2 h-full overflow-x-hidden">
+        <div className="bg-gray-100 p-2">
+          <div className="grid grid-cols-5 gap-2 w-[1000px] ml-2">
+            <Input type="email" placeholder="ID" />
+            <Input type="email" placeholder="Subject" />
+            <Input type="email" placeholder="Alpha Service Q/2" />
+            <Input type="email" placeholder="" />
+            <Input type="email" placeholder="" />
+          </div>
         </div>
-      </div>
         <div className="flex justify-between border-t-2 p-1.5">
-          
           <div className="flex items-center justify-center text-[12px] ml-3 font-medium text-gray-400 bg-gray-100 h-6 w-16 rounded">
             Add Filter
           </div>
@@ -288,6 +282,7 @@ const Reports = () => {
               cards={cards.filter((card) => card.status === column.status)}
               moveCard={moveCard}
               addCard={addCard}
+              updateCardStatus={updateCardStatus}
             />
           ))}
         </div>
