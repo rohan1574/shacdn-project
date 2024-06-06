@@ -102,13 +102,22 @@ const getCardColor = (status) => {
 };
 
 const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus, updateCard }) => {
-  const [, drop] = useDrop({
+  const [isOver, setIsOver] = useState(false);
+
+  const [{ isOverCurrent }, drop] = useDrop({
     accept: itemType,
     drop: (item) => {
+      setIsOver(false);
       if (item.status !== status) {
         updateCardStatus(item.id, status);
       }
     },
+    hover: () => {
+      setIsOver(true);
+    },
+    collect: (monitor) => ({
+      isOverCurrent: monitor.isOver({ shallow: true }),
+    }),
   });
 
   const renderAddTaskDialog = () => {
@@ -119,8 +128,10 @@ const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus, upd
     }
   };
 
+  const columnClasses = `border-r-2 ${["Open", "Working", "Completed", "Overdue"].includes(status) ? "max-h-screen overflow-y-auto" : ""} ${isOverCurrent ? "bg-gray-200" : ""}`;
+
   return (
-    <div className={`border-r-2 ${["Open", "Working", "Completed", "Overdue"].includes(status) ? "max-h-screen overflow-y-auto" : ""}`}>
+    <div className={columnClasses}>
       <div ref={drop}>
         <div className="flex justify-between items-center">
           <div className="flex items-center ml-4 p-2 gap-1">
@@ -143,7 +154,6 @@ const Column = ({ title, status, cards, moveCard, addCard, updateCardStatus, upd
     </div>
   );
 };
-
 
 
 const AddTaskDialog = ({ addCard, status }) => {
@@ -286,4 +296,3 @@ const Reports = () => {
 };
 
 export default Reports;
-
