@@ -42,7 +42,7 @@ const Navbar = ({ addCard, refreshCards }) => {
         </div>
         <div>
         <button
-          className="flex items-center ml-1.5 px-4 py-2 bg-gray-200 text-black font-semibold rounded-lg shadow-md hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+          className="flex items-center ml-1.5 px-4 py-2 bg-gray-200 text-black font-semibold rounded-lg shadow-md hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 border border-blue-400" 
           onClick={handleRefresh} // Add onClick event handler
         >
           <h1 className="text-[12px] md:text-[14px] font-semibold">Refresh</h1>
